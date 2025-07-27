@@ -34,20 +34,64 @@ def extract_ids_from_national_focus(filename):
     try:
         with open(filename, encoding='utf-8-sig') as f:
             text = f.read()
-            m = re.search(r'focus_tree\s*=\s*{\s*id\s*=\s*([^\s\}\n]+)', text)
-            if m:
-                focus_tree_id = m.group(1)
-                tree_parts = focus_tree_id.split("_")
-                ids_raw = re.findall(r'focus\s*=\s*{[^}]*?id\s*=\s*([^\s\}\n]+)', text)
-                ids = [id_ for id_ in ids_raw if len(id_) >= 1]
-                if ids:
-                    first_focus_parts = ids[0].split("_")
-                    if len(tree_parts) >= 2 and len(first_focus_parts) >= 2:
-                        if tree_parts[0] == first_focus_parts[0] and tree_parts[1] == first_focus_parts[1]:
-                            tag = tree_parts[0]
-                            name = tree_parts[1]
+        pattern = re.compile(r'(shared_focus|joint_focus|focus_tree)\s*=\s*{', re.MULTILINE)
+        matches = list(pattern.finditer(text))
+        positions = [(m.start(), m.group(1)) for m in matches]
+        positions.sort()
+        positions.append((len(text), None))  
+
+        for i in range(len(positions) - 1):
+            block_start = positions[i][0]
+            block_type = positions[i][1]
+            brace_count = 0
+            block_end = block_start
+            started = False
+            while block_end < len(text):
+                if text[block_end] == '{':
+                    brace_count += 1
+                    started = True
+                elif text[block_end] == '}':
+                    brace_count -= 1
+                    if started and brace_count == 0:
+                        break
+                block_end += 1
+            block_str = text[block_start:block_end+1]
+            
+            if block_type in ('shared_focus', 'joint_focus'):
+                m = re.search(r'id\s*=\s*([^\s\}\n]+)', block_str)
+                if m:
+                    ids.append(m.group(1))
+            elif block_type == 'focus_tree':
+                for focus_m in re.finditer(r'focus\s*=\s*{', block_str):
+                    f_start = focus_m.start()
+                    b_count = 0
+                    p = f_start
+                    started2 = False
+                    while p < len(block_str):
+                        if block_str[p] == '{':
+                            b_count += 1
+                            started2 = True
+                        elif block_str[p] == '}':
+                            b_count -= 1
+                            if started2 and b_count == 0:
+                                break
+                        p += 1
+                    focus_block = block_str[f_start:p+1]
+                    m_id = re.search(r'id\s*=\s*([^\s\}\n]+)', focus_block)
+                    if m_id:
+                        ids.append(m_id.group(1))
+                m_treeid = re.search(r'id\s*=\s*([^\s\}\n]+)', block_str)
+                if m_treeid:
+                    tree_id = m_treeid.group(1)
+                    tree_parts = tree_id.split("_")
+                    if ids:
+                        first_focus_parts = ids[0].split("_")
+                        if len(tree_parts) >= 2 and len(first_focus_parts) >= 2:
+                            if tree_parts[0] == first_focus_parts[0] and tree_parts[1] == first_focus_parts[1]:
+                                tag = tree_parts[0]
+                                name = tree_parts[1]
     except Exception as e:
-        messagebox.showerror("读取国策树文件失败", str(e))
+        print("读取国策树文件失败", e)
     return tag, name, ids
 
 def parse_id_lines(id_lines):
@@ -218,7 +262,7 @@ def on_save_loc():
     save_file(result_loc.get("1.0", tk.END), f"{mod_name}_focus_{tag}_{name}_l_simp_chinese.yml")
 
 root = tk.Tk()
-root.title("国策树相关文件自动生成整合工具by@CzXieDdan——czxieddan.top")
+root.title("国策树相关文件自动生成整合工具(https://github.com/czxieddan/FTAT)by@CzXieDdan——czxieddan.top")
 
 tk.Label(root, text="本地化/国策树文件:").grid(row=0, column=0, sticky='e')
 entry_loc = tk.Entry(root, width=40)
