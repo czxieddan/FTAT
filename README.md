@@ -116,7 +116,7 @@ python main.py
 ## 特别鸣谢
 
 <div align="center">
-        <a class="link-item" title="霜泽图书馆" target="_blank" rel="noopener" href="https://github.com/Paradox-Developer-Foundation/QIUQI-LIBRARY"><img src="https://i.imgur.com/Hjp7UBm.png" height="360"></a>
+        <a class="link-item" title="霜泽图书馆" target="_blank" rel="noopener" href="https://github.com/Paradox-Developer-Foundation/QIUQI-LIBRARY"><img src="https://i.imgur.com/D9nlxFk.png" height="360"></a>
         <p>霜泽图书馆 &#124; <i>HOI4</i> Modder社区</p>
         <p>&#160;</p>
         <p><a class="YEZI-QQ" title="3268514224" target="_blank" rel="noopener" href="https://ti.qq.com/open_qq/index2.html?url=mqqapi%3a%2f%2fuserprofile%2ffriend_profile_card%3fsrc_type%3dweb%26version%3d1.0%26source%3d2%26uin%3d3268514224"><i>YEZI</i></a> 技术支持</p>
